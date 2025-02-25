@@ -1,24 +1,28 @@
-import { Command } from "https://deno.land/x/command/mod.ts";
-
 export async function generateAPK(websiteUrl: string): Promise<string> {
     const outputFileName = "web_app_converter.apk";
     console.log(`🔄 Starting APK generation for: ${websiteUrl}`);
 
-    const command = new Command()
-        .args(["apktool", "b", "input-folder", "-o", outputFileName])
-        .output();
+    const command = new Deno.Command("apktool", {
+        args: ["b", "input-folder", "-o", outputFileName],
+        stdout: "piped",
+        stderr: "piped",
+    });
 
     try {
-        const { code, stdout, stderr } = await command.execute();
-        
-        console.log("📜 STDOUT:", stdout);
-        console.log("🚨 STDERR:", stderr);
+        const process = command.spawn();
+        const { code, stdout, stderr } = await process.output();
+
+        const stdoutText = new TextDecoder().decode(stdout);
+        const stderrText = new TextDecoder().decode(stderr);
+
+        console.log("📜 STDOUT:", stdoutText);
+        console.log("🚨 STDERR:", stderrText);
 
         if (code === 0) {
             console.log(`✅ APK Generated Successfully: ${outputFileName}`);
             return outputFileName;
         } else {
-            throw new Error(`❌ APK Generation Failed: ${stderr}`);
+            throw new Error(`❌ APK Generation Failed: ${stderrText}`);
         }
     } catch (error) {
         console.error("❌ Critical Error:", error);
