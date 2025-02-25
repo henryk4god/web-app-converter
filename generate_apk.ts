@@ -1,11 +1,21 @@
 import { exec } from "https://deno.land/x/exec/mod.ts";
 
-const outputFileName = "web_app_converter.apk";
-const command = `apktool b input-folder -o ${outputFileName}`;
+export async function generateAPK(url: string): Promise<string> {
+    const outputFileName = "web_app_converter.apk";
+    const inputFolder = "input-folder"; // Ensure this folder exists!
 
-try {
-  await exec(command);
-  console.log(`APK Generated: ${outputFileName}`);
-} catch (error) {
-  console.error("Error generating APK:", error);
+    // Construct the APK build command
+    const command = `apktool b ${inputFolder} -o ${outputFileName}`;
+
+    try {
+        const { stdout, stderr } = await exec(command);
+        console.log(stdout);
+        if (stderr) console.error("APKTool Error:", stderr);
+
+        console.log(`✅ APK Generated: ${outputFileName}`);
+        return outputFileName;
+    } catch (error) {
+        console.error("❌ Error generating APK:", error);
+        throw new Error("APK Generation Failed");
+    }
 }
