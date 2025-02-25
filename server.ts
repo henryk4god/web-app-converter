@@ -1,18 +1,30 @@
 import { serve } from "https://deno.land/std@0.218.2/http/server.ts";
 import { generateAPK } from "./generate_apk.ts"; 
 
-serve(async (req) => {
-    if (req.method === "POST" && req.url === "/convert") {
-        try {
-            const { url } = await req.json();
-            if (!url) return new Response("Invalid request", { status: 400 });
+console.log("✅ Server is running...");
 
-            const apkPath = await generateAPK(url);
-            return new Response(JSON.stringify({ message: "APK Generated", path: apkPath }), { status: 200 });
+serve(async (req) => {
+    const url = new URL(req.url, "http://localhost"); // Parse request URL
+
+    if (req.method === "POST" && url.pathname === "/convert") {
+        try {
+            const body = await req.json();
+            if (!body.url) {
+                return new Response("❌ Invalid request: URL is required", { status: 400 });
+            }
+
+            console.log(`🔄 Generating APK for: ${body.url}`);
+            const apkPath = await generateAPK(body.url);
+
+            return new Response(
+                JSON.stringify({ message: "✅ APK Generated", path: apkPath }),
+                { status: 200, headers: { "Content-Type": "application/json" } }
+            );
         } catch (error) {
-            return new Response(JSON.stringify({ error: "Server error" }), { status: 500 });
+            console.error("❌ Server Error:", error);
+            return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
         }
     }
 
-    return new Response("Not Found", { status: 404 });
+    return new Response("❌ Not Found", { status: 404 });
 });

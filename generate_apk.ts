@@ -2,9 +2,8 @@ import { exec } from "https://deno.land/x/exec/mod.ts";
 
 export async function generateAPK(url: string): Promise<string> {
     const outputFileName = "web_app_converter.apk";
-    const inputFolder = "input-folder"; // Ensure this folder exists!
+    const inputFolder = "input-folder"; // Make sure this folder exists!
 
-    // Construct the APK build command
     const command = `apktool b ${inputFolder} -o ${outputFileName}`;
 
     try {
