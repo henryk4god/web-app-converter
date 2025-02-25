@@ -1,14 +1,13 @@
-import { Command } from "https://deno.land/x/command/mod.ts";
+import { exec } from "https://deno.land/x/exec/mod.ts";
 
 export async function generateAPK(websiteUrl: string): Promise<string> {
     const outputFileName = "web_app_converter.apk";
-    const command = new Command()
-        .args(["apktool", "b", "input-folder", "-o", outputFileName])
-        .output();
+    const command = `apktool b input-folder -o ${outputFileName}`;
 
     try {
-        const { code, stdout, stderr } = await command.execute();
-        if (code === 0) {
+        const { status, stdout, stderr } = await exec(command);
+
+        if (status.success) {
             console.log(`✅ APK Generated: ${outputFileName}`);
             return outputFileName;
         } else {
