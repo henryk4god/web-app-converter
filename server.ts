@@ -4,7 +4,8 @@ import { generateAPK } from "./generate_apk.ts";
 console.log("✅ Server is running...");
 
 serve(async (req) => {
-    const { pathname } = new URL(req.url);
+    const url = new URL(req.url, "http://localhost"); // Parse request URL
+    const { pathname } = url;
 
     if (req.method === "POST" && pathname === "/convert") {
         try {
