@@ -4,9 +4,9 @@ import { generateAPK } from "./generate_apk.ts";
 console.log("✅ Server is running...");
 
 serve(async (req) => {
-    const url = new URL(req.url, "http://localhost"); // Parse request URL
+    const { pathname } = new URL(req.url);
 
-    if (req.method === "POST" && url.pathname === "/convert") {
+    if (req.method === "POST" && pathname === "/convert") {
         try {
             const body = await req.json();
             if (!body.url) {
@@ -26,5 +26,6 @@ serve(async (req) => {
         }
     }
 
+    console.log(`🚨 Route Not Found: ${req.method} ${pathname}`);
     return new Response("❌ Not Found", { status: 404 });
 });
