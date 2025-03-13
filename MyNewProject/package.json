@@ -1,0 +1,22 @@
+{
+  "name": "MyNewProject",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "18.1.0",
+    "react-native": "0.70.0"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "latest",
+    "@react-native/metro-config": "^0.78.0",
+    "babel-jest": "27.0.6",
+    "jest": "27.0.6",
+    "metro-react-native-babel-preset": "0.66.2",
+    "react-test-renderer": "18.1.0"
+  }
+}
