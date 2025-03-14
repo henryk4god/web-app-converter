@@ -27,25 +27,23 @@ jobs:
         run: npm install -g react-native-cli
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          cd MyNewProject
+          npm install
 
       - name: Build APK
-        run: cd android && ./gradlew assembleRelease
+        run: |
+          cd MyNewProject/android
+          ./gradlew assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4.6.1
         with:
           name: apk
-          path: android/app/build/outputs/apk/release/*.apk
+          path: MyNewProject/android/app/build/outputs/apk/release/*.apk
 
       - name: Download a Build Artifact
         uses: actions/download-artifact@v4.1.9
         with:
-          name: apk # Name of the artifact to download
-          path: ./downloaded-artifacts # Destination path
-          # Optional parameters can be added here if needed
-          # pattern: # optional
-          # merge-multiple: # optional, default is false
-          # github-token: # optional
-          # repository: # optional, default is ${{ github.repository }}
-          # run-id: # optional, default is ${{ github.run_id }}
+          name: apk
+          path: ./downloaded-artifacts
