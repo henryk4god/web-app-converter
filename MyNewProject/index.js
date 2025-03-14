@@ -1,42 +1,68 @@
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const { exec } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+const url = process.argv[2];
+const iconPath = process.argv[3] || "";
 
-// ✅ Enable CORS
-app.use(cors());
+if (!url) {
+    console.error("No URL provided");
+    process.exit(1);
+}
 
-// ✅ Middleware for JSON & Form Data
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+console.log("Starting APK generation...");
 
-// ✅ File Upload Setup
-const upload = multer({ dest: 'uploads/' });
+// Set up React Native project directory
+const projectDir = path.join(__dirname, "AppBuilder");
+if (!fs.existsSync(projectDir)) {
+    exec(`npx react-native init AppBuilder --version 0.72.0`, (error) => {
+        if (error) {
+            console.error(`Error initializing React Native: ${error.message}`);
+            return;
+        }
+        buildAPK();
+    });
+} else {
+    buildAPK();
+}
 
-app.post('/api/convert', upload.single('icon'), (req, res) => {
-    const { url } = req.body;
-    if (!url) {
-        return res.status(400).json({ message: "Invalid URL." });
+function buildAPK() {
+    let mainActivityPath = path.join(projectDir, "android", "app", "src", "main", "java", "com", "appbuilder", "MainActivity.java");
+    fs.writeFileSync(mainActivityPath, generateMainActivity(url));
+
+    if (iconPath) {
+        fs.copyFileSync(iconPath, path.join(projectDir, "android", "app", "src", "main", "res", "mipmap-hdpi", "ic_launcher.png"));
     }
 
-    // ✅ Handle the App Conversion Logic
-    const filePath = req.file ? req.file.path : null;
-    console.log(`Processing URL: ${url}`);
-    
-    // ✅ Simulate APK Generation
-    setTimeout(() => {
-        res.json({
-            message: "Your APK is ready!",
-            download_url: "https://mofoluwakeedgar.com/apkdownload"
-        });
-    }, 3000);
-});
+    exec(`cd ${projectDir} && ./gradlew assembleRelease`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error building APK: ${stderr}`);
+            return;
+        }
+        console.log("APK built successfully!");
+        console.log(stdout);
+    });
+}
 
-// ✅ Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+function generateMainActivity(url) {
+    return `
+        package com.appbuilder;
+
+        import android.os.Bundle;
+        import android.webkit.WebView;
+        import android.webkit.WebViewClient;
+        import androidx.appcompat.app.AppCompatActivity;
+
+        public class MainActivity extends AppCompatActivity {
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                WebView webView = new WebView(this);
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.setWebViewClient(new WebViewClient());
+                webView.loadUrl("${url}");
+                setContentView(webView);
+            }
+        }
+    `;
+}
