@@ -16,16 +16,18 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: 2.3.0'
+        node-version: '22.3.0'  # Updated Node.js version
 
-    - name: Build the web app
+    - name: Install dependencies
       run: |
+        cd myNewProject
         npm install
-        npm run build
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3   # Updated to a valid version
-      with:
-        name: build-artifacts
-        path: |
-          build/
+    - name: Build APK
+      run: node myNewProject/index.js
+
+    - name: Upload build artifacts using FTP
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+        curl -T myNewProject/src/app-release.apk ftp://your-ftp-server.com --user ${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}
