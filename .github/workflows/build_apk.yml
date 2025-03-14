@@ -20,14 +20,14 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd myNewProject
+        cd MyNewProject
         npm install
 
     - name: Build APK
-      run: node myNewProject/index.js
+      run: node MyNewProject/index.js
 
     - name: Upload build artifacts using FTP
       run: |
         sudo apt-get update
         sudo apt-get install -y curl
-        curl -T myNewProject/src/app-release.apk ftp://your-ftp-server.com --user ${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}
+        curl -T MyNewProject/src/app-release.apk ftp://your-ftp-server.com/https://mofoluwakeedgar.com/apkdownload --user ${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}
