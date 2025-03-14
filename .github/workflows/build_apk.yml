@@ -1,49 +1,30 @@
 name: Build APK
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 'node: 22.3.0'  # Use the appropriate Node.js version
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+    - name: Install dependencies
+      run: npm install
 
-      - name: Install React Native CLI
-        run: npm install -g react-native-cli
+    - name: Run APK generation script
+      run: node MyNewProject/index.js "https://example.com" "path/to/icon.png"
+      env:
+        JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.14-7/x64
 
-      - name: Install Dependencies
-        run: |
-          cd MyNewProject
-          npm install
-
-      - name: Build APK
-        run: |
-          cd MyNewProject
-          ./gradlew assembleRelease
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4.6.1
-        with:
-          name: apk
-          path: MyNewProject/android/app/build/outputs/apk/release/*.apk
-
-      - name: Download a Build Artifact
-        uses: actions/download-artifact@v4.1.9
-        with:
-          name: apk
-          path: ./downloaded-artifacts
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-release.apk
+        path: MyNewProject/AppBuilder/android/app/build/outputs/apk/release/app-release.apk
