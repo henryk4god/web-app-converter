@@ -33,7 +33,7 @@ jobs:
 
       - name: Build APK
         run: |
-          cd MyNewProject/android
+          cd MyNewProject
           ./gradlew assembleRelease
 
       - name: Upload APK
