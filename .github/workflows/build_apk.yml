@@ -1,4 +1,4 @@
-name: Build APK
+name: Build and Upload APK
 
 on:
   push:
@@ -11,12 +11,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '22.3.0'  # Updated Node.js version
+        node-version: '20.x'  # Use a stable Node.js version
 
     - name: Install dependencies
       run: |
@@ -24,10 +24,15 @@ jobs:
         npm install
 
     - name: Build APK
-      run: node MyNewProject/index.js
+      run: |
+        cd MyNewProject
+        node index.js
 
-    - name: Upload build artifacts using FTP
+    - name: Upload APK via FTP
+      env:
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
       run: |
         sudo apt-get update
-        sudo apt-get install -y curl
-        curl -T MyNewProject/src/app-release.apk ftp://your-ftp-server.com/https://mofoluwakeedgar.com/apkdownload --user ${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}
+        sudo apt-get install -y lftp
+        lftp -e "set ftp:ssl-allow no; put MyNewProject/src/app-release.apk -o /public_html/apkdownload/app-release.apk; bye" -u "$FTP_USERNAME","$FTP_PASSWORD" ftp://your-ftp-server.com
