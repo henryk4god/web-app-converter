@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: 'The URL to process'
+        required: true
 
 jobs:
   build:
@@ -26,7 +31,7 @@ jobs:
     - name: Build APK
       run: |
         cd MyNewProject
-        node index.js
+        node index.js ${{ github.event.inputs.app_url }}
 
     - name: Upload APK via FTP
       env:
